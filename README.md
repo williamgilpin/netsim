@@ -4,7 +4,9 @@ Simulations of Markov processes on various various graph structures, with partic
 ## Dependencies ##
 
 networkx
+
 numpy
+
 matplotlib
 
 
