@@ -35,7 +35,8 @@ def getss(tmat,rt=False):
         tmat = tmat.T
     else:
         pass
-    eigset = eig(tmat, left=True, right=False)
+    # eigset = eig(tmat, left=True, right=False)
+    eigset = eig(tmat.T)
 
     # check for real part nearly equal to one and 
     # imaginary part nearly equal to zero
@@ -46,7 +47,8 @@ def getss(tmat,rt=False):
         print("Warning: No eigenvalue equal to one detected. Check transition matrix")
         print(eigset[0])
         wind=0
-    ss = (eigset[1][wind])
+    # ss = (eigset[1][wind])
+    ss = (eigset[1].T[wind])
     ss = ss/sum(ss)
     return ss
 
@@ -62,7 +64,7 @@ def markov_plot(tmat):
     
     Tg = mat2DiGraph(tmat)
 
-    pos=nx.spring_layout(Tg)
+    pos=nx.circular_layout(Tg)
     nx.draw(Tg, pos, arrows=True,node_size=1000*sz_array)
 
 
@@ -128,6 +130,7 @@ def renorm(inmat, k=2, its=1):
          
         tmat=nmat
         
+        # get the steady-state
         ss = getss(zmat)
 
         # pair the rows
