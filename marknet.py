@@ -12,10 +12,10 @@ import networkx as nx
 
 
 def mat2DiGraph(trans_mat):
-	"""
-	Given a transition matrix, generate a NetworkX DiGraph object
-	corresponding to that transition matrix
-	"""
+    """
+    Given a transition matrix, generate a NetworkX DiGraph object
+    corresponding to that transition matrix
+    """
 
     num_states = trans_mat.shape[0]
     Tg=nx.DiGraph()
@@ -32,4 +32,5 @@ def mat2DiGraph(trans_mat):
                 # Weight by probability of not transitioning
                 Tg[ii][jj]['weight'] = (1-trans_mat[ii][jj])
     return Tg
+
 
