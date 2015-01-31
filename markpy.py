@@ -12,6 +12,7 @@ from scipy.linalg import eig
 import networkx as nx
 
 from marknet import mat2DiGraph
+from renorm_neq import *
 
 def getss(tmat,rt=False):
     """
