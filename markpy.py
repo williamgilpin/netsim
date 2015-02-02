@@ -47,7 +47,6 @@ def getss(tmat,rt=False):
         print("Warning: No eigenvalue equal to one detected. Check transition matrix")
         print(eigset[0])
         wind=0
-    # ss = (eigset[1][wind])
     ss = (eigset[1].T[wind])
     ss = ss/sum(ss)
     return ss
@@ -77,6 +76,26 @@ def matprint(M):
             print('{0:.3f}'.format(val).rjust(6),end=" ")
         print('\n')
 
+def unhollow(tmat):
+    """
+    given a nearly stochastic matrix tmat, calculate the 
+    self-transition probabilities by summing the off-diagonal 
+    entries for each row and subtracting it from one, then 
+    putting this number at the diagonal index
+    
+    tmat : array
+        A matrix with zero or otherwise meaningless diagonal elements
+    
+    umat : array
+        The same off diagonal elements as tmat, but with the diagonal
+        elements altered so that the rows all sum to one
+
+    """   
+    umat = copy(tmat)
+    for (ind,row) in enumerate(umat):
+        umat[ind,ind] = 1.0-(sum(row)-row[ind])
+    
+    return umat
 
 def renorm(inmat, k=2, its=1):
     """
