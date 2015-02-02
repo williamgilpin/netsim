@@ -105,6 +105,68 @@ def rownorm(tmat):
         tmat[ind,:] = row/sum(row)
     return tmat
 
+def norm_adj(adj):
+    """
+    Given an unnormalized graph adjacency matrix (with multiple allowed 
+    paths between a pair of nodes), normalize the rows correctly:
+    
+    1. All zero rows are replaced with their transpose
+    
+    2. All zero rows and all zero columns are replaced with unit
+        entries on the diagonal (these states are basically subgraphs)
+    
+    Parameters
+    ----------
+    adj : array
+        An adjacency matrix for a graph
+    
+
+    Returns
+    -------
+    nadj : array
+        a row-normalized stochastic matrix generated from adj
+
+    """
+    
+    nadj = copy(adj)
+    for ii in range(2):
+        row_sum = (sum(double(adj),axis=1))
+        bad_locs = where(row_sum==0.0)
+        # fix zero rows via transposition (remove directedness)
+        for loc in bad_locs:
+            nadj[loc,:] = copy(nadj[:,loc].T)
+        nadj = nadj.T
+    nadj = nadj.T
+    
+    # replace empty states with unit transitions
+    for (ind, row) in enumerate(nadj):
+        if sum(row)<1e-14:
+            nadj[ind,ind] = 1.0    
+    nadj = rownorm(nadj)
+    
+    return nadj
+
+def swapper(inmat, curr, targ):
+    """
+    Rearranges states in a normalized transition matrix. Returns
+    a copy of the array
+    
+    tmat : array
+        The transition matrix to be modified
+    curr : int
+        index of state to be swapped
+    targ : int
+        index of desired location at which curr will be inserted
+    """
+    tmat = copy(inmat)
+    
+    (old_row, old_column) = (copy(tmat[:,targ]), copy(tmat[targ,:]))
+    (tmat[:,targ], tmat[targ,:]) = (copy(tmat[:,curr]), copy(tmat[curr,:]))
+    (tmat[:,curr], tmat[curr,:]) = (old_row, old_column)
+    
+    return tmat
+
+
 def make_bethe(Z, k, stay_rate=1.0):
     """
     Generate the undirected adjacency matrix of a Bethe lattice
