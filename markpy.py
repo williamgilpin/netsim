@@ -88,14 +88,64 @@ def unhollow(tmat):
     
     umat : array
         The same off diagonal elements as tmat, but with the diagonal
-        elements altered so that the rows all sum to one
+        elements shifted so that the rows all sum to one
 
     """   
     umat = copy(tmat)
     for (ind,row) in enumerate(umat):
-        umat[ind,ind] = 1.0-(sum(row)-row[ind])
+         umat[ind,ind] = 1.0-(sum(row)-row[ind])
     
     return umat
+
+def rownorm(tmat):
+    """
+    Normalize the rows of a stochastic transition matrix
+    """
+    for (ind,row) in enumerate(tmat):
+        tmat[ind,:] = row/sum(row)
+    return tmat
+
+def make_bethe(Z, k, stay_rate=1.0):
+    """
+    Generate the undirected adjacency matrix of a Bethe lattice
+    for a given coordination number and finite shell number
+    
+    Z : int
+        The number of links out of every node
+        
+    k : int
+        The depth of the tree, or the number of "shells"
+        
+    stay_rate : double
+        A weight for self-transitions in the graph. Default they have
+        equal probability to transitions out of state. This value is zero 
+        in many standard treatments of Cayley maps
+        
+    adjmat : array
+        An adjacency matrix for the lattice
+    
+    """
+    
+    N = 1+Z*((Z-1.)**k - 1.)/(Z-2.)
+    print (N)
+    adjmat = zeros([N,N])
+
+    
+    
+    for (ind, row) in enumerate(adjmat):
+        if (ind != 0):
+            adjmat[ind, ((Z-1)*(ind+1)-(Z-3)):((Z-1)*ind+2*(Z-1)-(Z-3))] = 1.0
+    adjmat[0,1:(Z+1)] = 1.0
+    
+    adjmat = adjmat + adjmat.T
+    
+    # seed with unit self-transition
+    for (ind, row) in enumerate(adjmat):
+        adjmat[ind,ind]=1.0
+
+    adjmat = rownorm(adjmat)
+    
+    return adjmat
 
 def renorm(inmat, k=2, its=1):
     """
