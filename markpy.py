@@ -127,11 +127,10 @@ def make_bethe(Z, k, stay_rate=1.0):
     """
     
     N = 1+Z*((Z-1.)**k - 1.)/(Z-2.)
-    print (N)
+
     adjmat = zeros([N,N])
 
-    
-    
+    # populate upper triangle first
     for (ind, row) in enumerate(adjmat):
         if (ind != 0):
             adjmat[ind, ((Z-1)*(ind+1)-(Z-3)):((Z-1)*ind+2*(Z-1)-(Z-3))] = 1.0
@@ -139,9 +138,9 @@ def make_bethe(Z, k, stay_rate=1.0):
     
     adjmat = adjmat + adjmat.T
     
-    # seed with unit self-transition
+    # seed with input self-transition rate
     for (ind, row) in enumerate(adjmat):
-        adjmat[ind,ind]=1.0
+        adjmat[ind,ind] = stay_rate
 
     adjmat = rownorm(adjmat)
     
