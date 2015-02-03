@@ -4,6 +4,9 @@ from matplotlib.pyplot import *
 
 from scipy.linalg import eig
 from numpy.linalg import matrix_power
+from numpy.linalg import inv
+
+from markpy import *
 
 class LambEn:
     """
@@ -47,7 +50,8 @@ class LambEn:
         
     def tilt(self):
         """ 
-        Generates a "tilted" transition matrix in the lambda ensemble
+        Generates a normalized "tilted" transition matrix 
+        in the lambda ensemble
 
         Returns
         -------
@@ -57,7 +61,28 @@ class LambEn:
         """
 
         tilted = (self.trans_mat**self.lmda)*(self.trans_mat.T**(1.0-self.lmda))
-        return tilted
+
+
+        # This normalization portion needs to be checked since
+        # it doesn't quite seem right
+        qq2 = copy(tilted)
+        eigset = lefteig(qq2.T)
+
+        max_w = eigset[0][0]
+        ss = eigset[1][0]
+
+        umat = zeros(qq2.shape)
+
+        for (ind, row) in enumerate(umat):
+            umat[ind,ind] = ss[ind]
+
+        compo = (umat.dot(qq2.dot(inv(umat))))-max_w*identity(len(qq2))
+        compo = compo.T
+
+        tt = real(compo)
+        tt = unhollow(tt)
+
+        return tt
     
     
     def Z_lam(self, tsteps):

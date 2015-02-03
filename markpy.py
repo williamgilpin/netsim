@@ -9,6 +9,7 @@ from scipy import *
 from matplotlib.pyplot import *
 
 from scipy.linalg import eig
+from numpy.random import random_sample
 import networkx as nx
 
 from marknet import mat2DiGraph
@@ -57,6 +58,29 @@ def getss(tmat,rt=False):
     ss = (eigset[1].T[wind])
     ss = ss/sum(ss)
     return ss
+
+def lefteig(tmat):
+    """
+    Given a stochastic transition matrix, find the orthonormal eigenbasis
+    if it exists. Eigenvectors and eigenvalues are sorted by the magnitude
+    of the eigenvalue
+
+        Parameters
+    ----------
+    tmat : array
+        A stochastic matrix
+    """
+ 
+    eigset = eig(tmat.T)
+    
+    
+    sort_ind = argsort(eigset[0])[::-1]
+    eig_vals = eigset[0][sort_ind]
+    eig_vecs = eigset[1].T[sort_ind,:]
+    
+    eig_vecs = rownorm(eig_vecs)
+    
+    return [eig_vals, eig_vecs]
 
 
 def markov_plot(tmat,scale=1000):
