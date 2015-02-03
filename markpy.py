@@ -52,11 +52,17 @@ def getss(tmat,rt=False):
     return ss
 
 
-def markov_plot(tmat):
+def markov_plot(tmat,scale=1000):
     """ 
     Take a stochastic matrix as input and make a weighted 
     plot. The size of each node is proprotional to its 
     population at steady state
+
+    tmat : array
+        A stochastic matrix
+
+    scale : int
+        The amount to scale the node size
     """
     ss = getss(tmat)
     sz_array = ss
@@ -64,7 +70,7 @@ def markov_plot(tmat):
     Tg = mat2DiGraph(tmat)
 
     pos=nx.circular_layout(Tg)
-    nx.draw(Tg, pos, arrows=True,node_size=1000*sz_array)
+    nx.draw(Tg, pos, arrows=True,node_size=scale*sz_array)
 
 
 def matprint(M):
@@ -146,6 +152,19 @@ def norm_adj(adj):
     
     return nadj
 
+def ss_ent(tmat):
+    """
+    Calculate the steady-state entropy production of a row-
+    normalized stochastic transition matrix
+    """
+    ss = getss(tmat)
+    ent = 0.0
+    for (state, prob) in enumerate(ss):
+        ratio = (tmat[:,state]/tmat[state,:])
+        ratio[isnan(ratio)] = 1.0
+        ent += prob*( tmat[:,state].dot( log(ratio) ) )
+    return ent
+
 def swapper(inmat, curr, targ):
     """
     Rearranges states in a normalized transition matrix. Returns
@@ -165,7 +184,6 @@ def swapper(inmat, curr, targ):
     (tmat[:,curr], tmat[curr,:]) = (old_row, old_column)
     
     return tmat
-
 
 def make_bethe(Z, k, stay_rate=1.0):
     """
@@ -189,6 +207,7 @@ def make_bethe(Z, k, stay_rate=1.0):
     """
     
     N = 1+Z*((Z-1.)**k - 1.)/(Z-2.)
+    num_leaves = Z*(Z-1)**(k-1)
 
     adjmat = zeros([N,N])
 
@@ -203,6 +222,13 @@ def make_bethe(Z, k, stay_rate=1.0):
     # seed with input self-transition rate
     for (ind, row) in enumerate(adjmat):
         adjmat[ind,ind] = stay_rate
+
+    # make leaves metastable to preserve detailed balance
+    adjmat[-num_leaves:,:] = adjmat[:,-num_leaves:].T
+    
+    for (ind,row) in enumerate(adjmat):
+        if (ind >= (N-num_leaves)):
+            adjmat[ind,ind] += (Z-1.0)
 
     adjmat = rownorm(adjmat)
     
