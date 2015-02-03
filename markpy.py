@@ -1,5 +1,5 @@
 """
-A library of functions for working with stochastic matrices. 
+A library of functions for manipulating stochastic matrices. 
 The convention used is row-normalization, in which the row index 
 (usually "i") indexed the current state, and the column index ("j") 
 indexes the next state.
@@ -13,6 +13,13 @@ import networkx as nx
 
 from marknet import mat2DiGraph
 from renorm_neq import *
+
+def discrete_dist(vals, weights, nn=1):
+    """
+    nn is the number of random values to generate
+    """
+    bins = cumsum(weights)
+    return vals[digitize(random_sample(nn), bins)]
 
 def getss(tmat,rt=False):
     """
@@ -151,19 +158,6 @@ def norm_adj(adj):
     nadj = rownorm(nadj)
     
     return nadj
-
-def ss_ent(tmat):
-    """
-    Calculate the steady-state entropy production of a row-
-    normalized stochastic transition matrix
-    """
-    ss = getss(tmat)
-    ent = 0.0
-    for (state, prob) in enumerate(ss):
-        ratio = (tmat[:,state]/tmat[state,:])
-        ratio[isnan(ratio)] = 1.0
-        ent += prob*( tmat[:,state].dot( log(ratio) ) )
-    return ent
 
 def swapper(inmat, curr, targ):
     """
