@@ -63,26 +63,25 @@ class LambEn:
         tilted = (self.trans_mat**self.lmda)*(self.trans_mat.T**(1.0-self.lmda))
 
 
-        # This normalization portion needs to be checked since
-        # it doesn't quite seem right
-        qq2 = copy(tilted)
-        eigset = lefteig(qq2.T)
+        # # This normalization portion needs to be checked since
+        # # it doesn't quite seem right for the discrete case
+        # qq2 = copy(tilted)
+        
+        # eigset = lefteig(qq2)
+        # max_w = eigset[0][0]
+        # ss = eigset[1][0]
 
-        max_w = eigset[0][0]
-        ss = eigset[1][0]
+        # umat = zeros(qq2.shape)
+        # for (ind, row) in enumerate(umat):
+        #     umat[ind,ind] = ss[ind]
 
-        umat = zeros(qq2.shape)
+        # compo = (umat.dot(qq2.dot(inv(umat))))
+        # compo = real(compo)
+        # compo = unhollow(compo)
 
-        for (ind, row) in enumerate(umat):
-            umat[ind,ind] = ss[ind]
+        compo = unhollow(tilted)
 
-        compo = (umat.dot(qq2.dot(inv(umat))))-max_w*identity(len(qq2))
-        compo = compo.T
-
-        tt = real(compo)
-        tt = unhollow(tt)
-
-        return tt
+        return compo
     
     
     def Z_lam(self, tsteps):

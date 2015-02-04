@@ -58,8 +58,16 @@ def ss_ent(tmat):
     ss = getss(tmat)
     ent = 0.0
     for (state, prob) in enumerate(ss):
+
+
+
         ratio = (tmat[:,state]/tmat[state,:])
+        
+        # account for non-connecting elements
         ratio[isnan(ratio)] = 1.0
+
+        # ratio[isnan(ratio)] = 1.0
+
         ent += prob*( tmat[:,state].dot( log(ratio) ) )
     return ent
 
@@ -76,15 +84,14 @@ def path_ent(tmat, traj):
         
     ent : double
         The total stepwise entropy production rate along the path
-        
-    TODO: RETURN ENTROPY PRODUCED AT EACH STEP, SUM, CUMSUM, etc LATER
-    
     """
     traj = array(traj)
     jumps = zip(traj[:-1],traj[1:])
-    ent = list()
-    
-    for jump in jumps:
-        ent.append(log(tmat[jump]/tmat[(jump[1],jump[0])]))
-        
+    jump_list = [item for item in (jumps)]
+
+    ent = list()    
+    for jump in jump_list:
+        prv = int(jump[0])
+        nxt = int(jump[1])
+        ent.append(log( tmat[prv, nxt]/tmat[nxt, prv] ))
     return list(ent)
