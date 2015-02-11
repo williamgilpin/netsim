@@ -253,6 +253,46 @@ def make_bethe(Z, k, stay_rate=1.0):
     
     return adjmat
 
+def merge_states(inmat, s_inds):
+    """
+    Merge the tuple of states given by s_inds for a
+    stochastic transition matrix (row-normalized)
+    
+    inmat: array
+        A row-normalized transition matrix
+    
+    s_inds : tuple
+        The set of states (at least two) that will be 
+        merged. 
+    """
+    
+    inmat: array
+    
+    tmat = copy(inmat)
+    targ_ind = min(s_inds)
+    
+    ss = getss(tmat)
+    weights = array([ss[index] for index in s_inds])
+    tot_weight = sum(weights)
+    
+    row = tmat[s_inds, :]
+    
+    # correctly merge the rows
+    new_row = ( array(weights).dot(tmat[s_inds,:]) )/tot_weight
+    new_row = real(new_row)
+    
+    tmat = delete(tmat, s_inds, axis=0)
+    tmat = insert(tmat, targ_ind, new_row, axis=0)
+    
+    # do the columns
+    
+    cols = tmat[:, s_inds]
+    new_col = sum(cols, axis=1)
+    tmat = delete(tmat, s_inds, axis=1)
+    tmat = insert(tmat, targ_ind, new_col, axis=1)
+
+    return tmat
+
 def renorm(inmat, k=2, its=1):
     """
     Take a row-normalized transition matrix and rescale the
@@ -261,6 +301,9 @@ def renorm(inmat, k=2, its=1):
     Notes: the columns are clustered by whatever sorting they have to begin with
            the weights of row pairings are determined using the equilibrium probabilities of each node
     
+    FIXES: This function should be simplified to just call merge_states, the
+            part is figuring out odd-shaped matrices. 
+
     Parameters
     ----------
     inmat : array
