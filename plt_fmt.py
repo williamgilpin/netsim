@@ -3,9 +3,15 @@
 from numpy import *
 from scipy import *
 from matplotlib.pyplot import *
+import matplotlib.font_manager as fm
 
-rcParams['font.family'] = 'Myriad Pro'
+# rcParams['font.family'] = 'Myriad Pro'
+font = fm.FontProperties(
+        family = 'Myriad Pro', fname = '/Library/Fonts/MyriadPro-Regular.otf')
+
 rcParams['font.weight'] = 'bold'
+
+
 # # These are the "Tableau 20" colors as RGB.  
 tableau20 = [(31, 119, 180), (174, 199, 232), (255, 127, 14), (255, 187, 120),  
              (44, 160, 44), (152, 223, 138), (214, 39, 40), (255, 152, 150),  
