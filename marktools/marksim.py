@@ -60,12 +60,12 @@ def ss_ent(tmat):
     ent = 0.0
     for (state, prob) in enumerate(ss):
 
-        ratio = (tmat[:,state]/tmat[state,:])
+        ratio = (tmat[state,:]/tmat[:,state])
 
         # account for non-connecting elements
         ratio[isnan(ratio)] = 1.0
 
-        ent += prob*( tmat[:,state].dot( log(ratio) ) )
+        ent += prob*( tmat[state, :].dot( log(ratio) ) )
     return ent
 
 def path_ent(tmat, traj):

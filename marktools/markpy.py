@@ -264,9 +264,8 @@ def merge_states(inmat, s_inds):
     s_inds : tuple
         The set of states (at least two) that will be 
         merged. 
+
     """
-    
-    inmat: array
     
     tmat = copy(inmat)
     targ_ind = min(s_inds)
