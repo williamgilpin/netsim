@@ -16,6 +16,7 @@ import networkx as nx
 from .renorm_neq import *
 from .markpy import *
 from numpy.random import random_sample
+from numpy.random import choice
 
 def simtraj(trans_mat, tsteps, stt=0):
     """
@@ -92,3 +93,91 @@ def path_ent(tmat, traj):
         nxt = int(jump[1])
         ent.append(log( tmat[prv, nxt]/tmat[nxt, prv] ))
     return list(ent)
+
+def sim_hits(tmat,start_list,targ_list,ntraj = 1000, cutoff=1000):
+    """
+    Simulate a bunch of trajectories that start at randomly chosen node
+    in start_list and terminate at any one of the nodes given in targ_list
+    
+    tmat : array
+        transition matrix describing the system
+        
+    start_list : list
+        possible states to start in
+        
+    targ_list : list
+        states to end in
+        
+    ntraj : int
+        the number of trajectories to simulate
+        
+    cutoff : int
+        the number of steps a trajectory can take without making it to
+        a mamber of targlist before the simulation cuts it off
+        
+        
+    Returns
+    -------
+
+    trajs : list
+        a list of random walks that start in start_list and end in targ_list
+        
+    """
+    
+    # get state names
+    nstates = tmat.shape[0]
+    states = array([ii for ii in range(nstates)])
+    
+    trajs = list()
+    
+    for ii in range(ntraj):
+        curr = choice(start_list)
+        traj = list()
+        traj.append(curr)
+        while curr not in targ_list:
+            weights = copy(tmat[curr, :])
+            curr = discrete_dist(states, weights, nn=1)
+            traj.append(curr)
+            
+            if len(traj)>=cutoff:
+                # traj=[nan]
+                break
+                
+        trajs.append(array(traj))
+
+    return trajs
+
+def hit_time(tmat,start_list,targ_list,ntraj = 1000, cutoff=1000):
+    """
+    Similar to sim_hits, but generates the hitting times only
+    
+    tmat : array
+        transition matrix describing the system
+        
+    start_list : list
+        states to start in
+        
+    targ_list : list
+        states to end in
+    """
+    
+    # get state names
+    nstates = tmat.shape[0]
+    states = array([ii for ii in range(nstates)])
+    
+    times = list()
+    
+    for ii in range(ntraj):
+        curr = choice(start_list)
+        tm = 0
+        while curr not in targ_list:
+            weights = copy(tmat[curr, :])
+            curr = discrete_dist(states, weights, nn=1)
+            tm += 1
+            if tm==cutoff:
+                tm = nan
+                break
+                
+        times.append(tm)
+
+    return array(times)
