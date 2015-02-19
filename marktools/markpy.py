@@ -10,12 +10,18 @@ from matplotlib.pyplot import *
 
 from scipy.linalg import eig
 from numpy.random import random_sample
+from warnings import warn, simplefilter
 import networkx as nx
 
 # from marknet import mat2DiGraph
 # from renorm_neq import *
 from .marknet import *
 from .renorm_neq import *
+
+
+warnings.simplefilter('always', UserWarning)
+
+
 
 def discrete_dist(vals, weights, nn=1):
     """
@@ -53,7 +59,7 @@ def getss(tmat,rt=False):
     if any( windex ):
         wind = list(windex).index(True)
     else:
-        print("Warning: No eigenvalue equal to one detected. Check transition matrix")
+        warn("No eigenvalue equal to one detected. Check transition matrix")
         print(eigset[0])
         wind=0
     ss = (eigset[1].T[wind])
@@ -138,9 +144,29 @@ def unhollow(tmat):
 def rownorm(tmat):
     """
     Normalize the rows of a stochastic transition matrix
+    using rescaling
     """
     for (ind,row) in enumerate(tmat):
         tmat[ind,:] = row/sum(row)
+    return tmat
+
+def rownorm2(inmat):
+    """
+    Normalize the rows of a stochastic transition matrix
+    by re-weighing self-transition probability (diagonal elements)
+    """
+    tmat = copy(inmat)
+    
+    for (ind, row) in enumerate(inmat):
+        row2 = copy(row)
+        row2[ind] = 0.0
+        tot = sum(row2)
+        
+        if tot >= 1.0:
+            warn("Index " + str(ind) + ": Negative value on main diagonal. Consider re-weighing transition states")
+        
+        tmat[ind,ind] = 1.0 - tot
+        
     return tmat
 
 def norm_adj(adj):
