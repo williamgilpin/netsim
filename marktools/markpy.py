@@ -282,7 +282,9 @@ def make_bethe(Z, k, stay_rate=1.0):
 def merge_states(inmat, s_inds):
     """
     Merge the tuple of states given by s_inds for a
-    stochastic transition matrix (row-normalized)
+    stochastic transition matrix (row-normalized). If s_inds 
+    contains repeated indices it ignores the repeat. If s_ind 
+    contains only one value, return the original matrix
     
     inmat: array
         A row-normalized transition matrix
@@ -293,6 +295,10 @@ def merge_states(inmat, s_inds):
 
     """
     
+    s_inds = list(set(s_inds))
+    if len(s_inds)==1:
+        return inmat
+
     tmat = copy(inmat)
     targ_ind = min(s_inds)
     
